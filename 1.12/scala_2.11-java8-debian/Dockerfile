@@ -44,9 +44,9 @@ RUN set -ex; \
   gosu nobody true
 
 # Configure Flink version
-ENV FLINK_TGZ_URL=https://archive.apache.org/dist/flink/flink-1.12.0/flink-1.12.0-bin-scala_2.11.tgz \
-    FLINK_ASC_URL=https://archive.apache.org/dist/flink/flink-1.12.0/flink-1.12.0-bin-scala_2.11.tgz.asc \
-    GPG_KEY=43CE299BC305AFF8B912AA95183F6944D9839159 \
+ENV FLINK_TGZ_URL=https://www.apache.org/dyn/closer.cgi?action=download&filename=flink/flink-1.12.1/flink-1.12.1-bin-scala_2.11.tgz \
+    FLINK_ASC_URL=https://www.apache.org/dist/flink/flink-1.12.1/flink-1.12.1-bin-scala_2.11.tgz.asc \
+    GPG_KEY=F8E419AA0B60C28879E876859DFF40967ABFC5A4 \
     CHECK_GPG=true
 
 # Prepare environment
@@ -86,10 +86,10 @@ RUN set -ex; \
   tar -xf flink-libs.tgz; \
   rm flink-libs.tgz; \
   cp opt/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar lib/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar; \
-  cp opt/flink-queryable-state-runtime_2.11-1.12.0.jar lib/flink-queryable-state-runtime_2.11-1.12.0.jar; \
-  cp opt/flink-cep_2.11-1.12.0.jar lib/flink-cep_2.11-1.12.0.jar; \
+  cp opt/flink-queryable-state-runtime_2.11-1.12.1.jar lib/flink-queryable-state-runtime_2.11-1.12.1.jar; \
+  cp opt/flink-cep_2.11-1.12.1.jar lib/flink-cep_2.11-1.12.1.jar; \
   mkdir plugins/azure-fs-hadoop; \
-  cp opt/flink-azure-fs-hadoop-1.12.0.jar plugins/azure-fs-hadoop/flink-azure-fs-hadoop-1.12.0.jar;
+  cp opt/flink-azure-fs-hadoop-1.12.1.jar plugins/azure-fs-hadoop/flink-azure-fs-hadoop-1.12.1.jar;
 
 
 # Configure container

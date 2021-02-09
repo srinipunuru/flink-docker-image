@@ -30,7 +30,6 @@ docker push ghcr.io/srinipunuru/flink-image:$TAG
 
 # Testing the container
 
-- Comment out the Entrypoint from the dockerfile
 - Build the docker image 
 - Run the docker image using the below command
 
