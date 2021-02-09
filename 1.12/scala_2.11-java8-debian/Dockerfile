@@ -25,7 +25,6 @@ RUN set -ex; \
   rm -rf /var/lib/apt/lists/*
 
 # Grab gosu for easy step-down from root
-# Used by docker-entrypoint.sh
 ENV GOSU_VERSION 1.11
 RUN set -ex; \
   wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
@@ -44,36 +43,51 @@ RUN set -ex; \
   chmod +x /usr/local/bin/gosu; \
   gosu nobody true
 
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://archive.apache.org/dist/flink/flink-1.12.0/flink-1.12.0-bin-scala_2.11.tgz \
+    FLINK_ASC_URL=https://archive.apache.org/dist/flink/flink-1.12.0/flink-1.12.0-bin-scala_2.11.tgz.asc \
+    GPG_KEY=43CE299BC305AFF8B912AA95183F6944D9839159 \
+    CHECK_GPG=true
 
 # Prepare environment
 ENV FLINK_HOME=/opt/flink
 ENV PATH=$FLINK_HOME/bin:$PATH
 RUN groupadd --system --gid=9999 flink && \
     useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
-COPY flink-1.12.1-bin-scala_2.11.tgz $FLINK_HOME/flink.tgz
-COPY flink-libs.tgz $FLINK_HOME/flink-libs.tgz
-
 WORKDIR $FLINK_HOME
 
-# Install Flink and create distro
+# Install Flink
 RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in ha.pool.sks-keyservers.net $(shuf -e \
+                            hkp://p80.pool.sks-keyservers.net:80 \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
   tar -xf flink.tgz --strip-components=1; \
-  tar -xf flink-libs.tgz; \
-  rm flink.tgz flink-libs.tgz; \
-  ln -s opt/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar lib/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar; \
-  ln -s opt/flink-queryable-state-runtime_2.11-1.12.1.jar lib/flink-queryable-state-runtime_2.11-1.12.1.jar; \
-  ln -s opt/flink-cep_2.11-1.12.1.jar lib/flink-cep_2.11-1.12.1.jar; \
-  mkdir plugins/azure-fs-hadoop; \
-  ln -s opt/flink-azure-fs-hadoop-1.12.1.jar plugins/azure-fs-hadoop/flink-azure-fs-hadoop-1.12.1; \
+  rm flink.tgz; \
+  \
   chown -R flink:flink .;
+
+# Install Flink libs
+COPY flink-libs.tgz $FLINK_HOME/flink-libs.tgz
+RUN set -ex; \
+  tar -xf flink-libs.tgz; \
+  rm flink-libs.tgz;
 
 # Configure container
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 6123 8081
 CMD ["help"]
-
-# Use this for testing the container
-# COPY hello /
-# ENTRYPOINT ["/hello"]
-
