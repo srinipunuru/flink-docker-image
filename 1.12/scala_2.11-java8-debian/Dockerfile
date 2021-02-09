@@ -84,7 +84,13 @@ RUN set -ex; \
 COPY flink-libs.tgz $FLINK_HOME/flink-libs.tgz
 RUN set -ex; \
   tar -xf flink-libs.tgz; \
-  rm flink-libs.tgz;
+  rm flink-libs.tgz; \
+  cp opt/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar lib/flink-shaded-netty-tcnative-dynamic-2.0.30.Final-12.0.jar; \
+  cp opt/flink-queryable-state-runtime_2.11-1.12.0.jar lib/flink-queryable-state-runtime_2.11-1.12.0.jar; \
+  cp opt/flink-cep_2.11-1.12.0.jar lib/flink-cep_2.11-1.12.0.jar; \
+  mkdir plugins/azure-fs-hadoop; \
+  cp opt/flink-azure-fs-hadoop-1.12.0.jar plugins/azure-fs-hadoop/flink-azure-fs-hadoop-1.12.0.jar;
+
 
 # Configure container
 COPY docker-entrypoint.sh /
