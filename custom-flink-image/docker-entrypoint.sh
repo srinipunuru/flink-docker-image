@@ -127,9 +127,10 @@ elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
 
     exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
 elif [ "$1" = "taskmanager" ]; then
-    args=("${args[@]:1}")
+    resourceid=$(hostname -f)
+    args=("-Dtaskmanager.resource-id=${resourceid}${args[@]:1}")
 
-    echo "Starting Task Manager"
+    echo "Starting Task Manager with args:${args[@]}"
 
     exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
 elif [ "$1" = "$COMMAND_NATIVE_KUBERNETES" ]; then
