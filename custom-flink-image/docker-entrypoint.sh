@@ -127,7 +127,7 @@ elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
 
     exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
 elif [ "$1" = "taskmanager" ]; then
-    resourceid=$(hostname -f)
+    resourceid=$(hostname)
     args=("-Dtaskmanager.resource-id=${resourceid}${args[@]:1}")
 
     echo "Starting Task Manager with args:${args[@]}"
